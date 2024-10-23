@@ -1,20 +1,20 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 
-const WeatherInfo = ({ weatherData }) => {
+const WeatherInfo = ({ searchWeatherData }) => {
   return (
     <View>
       <Text style={styles.title}>
-        {weatherData.name}
+        {searchWeatherData.name}
         <Image
-          source={{ uri: `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png` }}
+          source={{ uri: `https://openweathermap.org/img/wn/${searchWeatherData.weather[0].icon}@2x.png` }}
           style={styles.icon}
         />
       </Text>
-      <Text style={styles.text}>Temperatuur: {weatherData.main.temp} °C</Text>
-      <Text style={styles.text}>Gevoelstemperatuur: {weatherData.main.feels_like} °C</Text>
-      <Text style={styles.text}>Luchtvochtigheid: {weatherData.main.humidity}%</Text>
-      <Text style={styles.text}>Windsnelheid: {weatherData.wind.speed} m/s</Text>
+      <Text style={styles.text}>Temperatuur: {searchWeatherData.main.temp} °C</Text>
+      <Text style={styles.text}>Gevoelstemperatuur: {searchWeatherData.main.feels_like} °C</Text>
+      <Text style={styles.text}>Luchtvochtigheid: {searchWeatherData.main.humidity}%</Text>
+      <Text style={styles.text}>Windsnelheid: {searchWeatherData.wind.speed} m/s</Text>
     </View>
   );
 };

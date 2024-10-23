@@ -1,23 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, Image } from 'react-native';
-import WeatherInfo from '../components/WeatherInfo';
+import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import SearchWeather from '../components/SearchWeather';
+import LocationWeather from '../components/LocationWeather';
+import GetLocation from 'react-native-get-location';
 
 const Home = () => {
   const [searchInput, setSearchInput] = useState('');
-  const [weatherData, setWeatherData] = useState(null);
+  const [searchWeatherData, setSearchWeatherData] = useState(null);
+  const [locationData, setLocationData] = useState(null);
   const [city, setCity] = useState('');
-  const apiKey = '1e30fd44ccc54c5f601162c743d72a5c';
+  const apiKey = 'd4f3732fa26ca1a2748dddba22b9bc31';
+
+  useEffect(() => {
+    GetLocation.getCurrentPosition({
+        timeout: 60000,
+    })
+    .then(async location => {
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&appid=${apiKey}&units=metric`);
+        const data = await response.json();
+        setLocationData(data);
+    })
+    .catch(error => {
+        const { code, message } = error;
+        console.warn(code, message);
+    });
+}, []);
 
   useEffect(() => {
     if (!city) return;
 
-    const fetchWeatherData = async () => {
-      const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
+    const fetchSearchWeatherData = async () => {
+      const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&=lang=nl`);
       const data = await response.json();
-      setWeatherData(data);
+      setSearchWeatherData(data);
+      console.log(data);
     };
 
-    fetchWeatherData();
+    fetchSearchWeatherData();
   }, [city]);
 
   const handleChange = (value) => {
@@ -30,8 +49,14 @@ const Home = () => {
 
   return (
     <View style={styles.container}>
+      {/** Gebruikers Locatie Weer container */}
+      {locationData && (
+        <View style={styles.weatherContainer}>
+          <LocationWeather locationData={locationData} />
+        </View>
+      )}
+      {/** Zoekbalk */}
       <View style={styles.searchContainer}>
-        {/** Zoekbalk */}
         <TextInput
           placeholder="Zoek een stad op"
           value={searchInput}
@@ -43,13 +68,12 @@ const Home = () => {
           <Text style={styles.buttonText}>Zoeken</Text>
         </Pressable>
       </View>
-      {/** Weer container */}
-      {weatherData && (
+      {/** Zoekbalk Weer container */}
+      {searchWeatherData && (
         <View style={styles.weatherContainer}>
-          <WeatherInfo weatherData={weatherData} />
+          <SearchWeather searchWeatherData={searchWeatherData} />
         </View>
       )}
-      {/** Iets anders */}
     </View>
   );
 };
@@ -69,6 +93,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     width: '100%',
+    marginTop: 20,
     marginBottom: 20,
     shadowColor: '#000',
     shadowOpacity: 0.1,
@@ -95,6 +120,7 @@ const styles = StyleSheet.create({
   },
   weatherContainer: {
     marginTop: 20,
+    marginBottom: 20,
     width: '100%',
     backgroundColor: '#fff',
     padding: 20,
