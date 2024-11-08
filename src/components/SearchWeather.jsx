@@ -2,18 +2,18 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const SearchWeather = ({ searchWeatherData, hourlyData }) => {
+const SearchWeather = ({ searchWeatherData, dailyData }) => {
 
   const renderHourlyForecast = () => {
     return (
         <FlatList
-            data={hourlyData}
+            data={dailyData}
             horizontal
             keyExtractor={(item) => item.dt.toString()}
             renderItem={({ item }) => (
                 <View style={styles.forecastItem}>
-                    <Text style={styles.forecastTime}>
-                        {new Date(item.dt * 1000).getHours()}:00
+                    <Text style={styles.forecastDay}>
+                        {new Date(item.dt * 1000).toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit' })}
                     </Text>
                     <Image
                         source={{
@@ -62,7 +62,7 @@ const SearchWeather = ({ searchWeatherData, hourlyData }) => {
                         </Text>
                     </View>
                 </View>
-                
+
                 <View style={styles.forecastContainer}>{renderHourlyForecast()}</View>
             </>
         ) : (
@@ -75,10 +75,6 @@ const SearchWeather = ({ searchWeatherData, hourlyData }) => {
 export default SearchWeather;
 
 const styles = StyleSheet.create({
-    background: {
-        flex: 1,
-        resizeMode: 'cover',
-    },
     container: {
         flex: 1,
         backgroundColor: '#E0F7FA',
@@ -138,7 +134,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginRight: 10,
     },
-    forecastTime: {
+    forecastDay: {
         color: '#0D47A1',
         fontSize: 16,
         marginBottom: 5,

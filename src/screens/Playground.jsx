@@ -7,8 +7,8 @@ const API_KEY = 'd4f3732fa26ca1a2748dddba22b9bc31';
 
 const Playground = () => {
     const [weatherData, setWeatherData] = useState(null);
-    const [hourlyData, setHourlyData] = useState([]);
-    
+    const [dailyData, setDailyData] = useState([]);
+
     const fetchWeatherData = async (lat, lon) => {
         try {
             const response = await fetch(
@@ -21,7 +21,18 @@ const Playground = () => {
                 `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=nl`
             );
             const forecastData = await forecastResponse.json();
-            setHourlyData(forecastData.list.slice(0, 5)); 
+            
+            const dailyForecast = [];
+            const forecastMap = {};
+            forecastData.list.forEach(item => {
+                const date = new Date(item.dt * 1000).toLocaleDateString();
+                if (!forecastMap[date]) {
+                    forecastMap[date] = item;
+                    dailyForecast.push(item);
+                }
+            });
+            
+            setDailyData(dailyForecast.slice(0, 5));
         } catch (error) {
             console.error(error);
         }
@@ -40,16 +51,16 @@ const Playground = () => {
             });
     }, []);
 
-    const renderHourlyForecast = () => {
+    const renderDailyForecast = () => {
         return (
             <FlatList
-                data={hourlyData}
+                data={dailyData}
                 horizontal
                 keyExtractor={(item) => item.dt.toString()}
                 renderItem={({ item }) => (
                     <View style={styles.forecastItem}>
-                        <Text style={styles.forecastTime}>
-                            {new Date(item.dt * 1000).getHours()}:00
+                        <Text style={styles.forecastDay}>
+                            {new Date(item.dt * 1000).toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit' })}
                         </Text>
                         <Image
                             source={{
@@ -65,59 +76,55 @@ const Playground = () => {
     };
 
     return (
-            <View style={styles.container}>
-                {weatherData ? (
-                    <>
-                        <Text style={styles.locationText}>
-                            {weatherData.name}, {weatherData.sys.country}
-                        </Text>
+        <View style={styles.container}>
+            {weatherData ? (
+                <>
+                    <Text style={styles.locationText}>
+                        {weatherData.name}, {weatherData.sys.country}
+                    </Text>
 
-                        <Image
-                            source={{
-                                uri: `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@4x.png`,
-                            }}
-                            style={styles.weatherIcon}
-                        />
-                        <Text style={styles.temperatureText}>
-                            {Math.round(weatherData.main.temp)}°C
-                        </Text>
-                        <Text style={styles.weatherDescription}>
-                            {weatherData.weather[0].description}
-                        </Text>
+                    <Image
+                        source={{
+                            uri: `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@4x.png`,
+                        }}
+                        style={styles.weatherIcon}
+                    />
+                    <Text style={styles.temperatureText}>
+                        {Math.round(weatherData.main.temp)}°C
+                    </Text>
+                    <Text style={styles.weatherDescription}>
+                        {weatherData.weather[0].description}
+                    </Text>
 
-                        <View style={styles.infoContainer}>
-                            <View style={styles.infoItem}>
-                                <Icon name="weather-windy" size={25} color="#0D47A1" />
-                                <Text style={styles.infoValue}>{weatherData.wind.speed} km/h</Text>
-                            </View>
-                            <View style={styles.infoItem}>
-                                <Icon name="water-percent" size={25} color="#0D47A1" />
-                                <Text style={styles.infoValue}>{weatherData.main.humidity}%</Text>
-                            </View>
-                            <View style={styles.infoItem}>
-                                <Icon name="weather-sunset" size={25} color="#0D47A1" />
-                                <Text style={styles.infoValue}>
-                                    {new Date(weatherData.sys.sunset * 1000).toLocaleTimeString()}
-                                </Text>
-                            </View>
+                    <View style={styles.infoContainer}>
+                        <View style={styles.infoItem}>
+                            <Icon name="weather-windy" size={25} color="#0D47A1" />
+                            <Text style={styles.infoValue}>{weatherData.wind.speed} km/h</Text>
                         </View>
+                        <View style={styles.infoItem}>
+                            <Icon name="water-percent" size={25} color="#0D47A1" />
+                            <Text style={styles.infoValue}>{weatherData.main.humidity}%</Text>
+                        </View>
+                        <View style={styles.infoItem}>
+                            <Icon name="weather-sunset" size={25} color="#0D47A1" />
+                            <Text style={styles.infoValue}>
+                                {new Date(weatherData.sys.sunset * 1000).toLocaleTimeString()}
+                            </Text>
+                        </View>
+                    </View>
 
-                        <View style={styles.forecastContainer}>{renderHourlyForecast()}</View>
-                    </>
-                ) : (
-                    <Text style={styles.loadingText}>Loading weather data...</Text>
-                )}
-            </View>
+                    <View style={styles.forecastContainer}>{renderDailyForecast()}</View>
+                </>
+            ) : (
+                <Text style={styles.loadingText}>Loading weather data...</Text>
+            )}
+        </View>
     );
 };
 
 export default Playground;
 
 const styles = StyleSheet.create({
-    background: {
-        flex: 1,
-        resizeMode: 'cover',
-    },
     container: {
         flex: 1,
         backgroundColor: '#E0F7FA',
@@ -157,10 +164,6 @@ const styles = StyleSheet.create({
     infoItem: {
         alignItems: 'center',
     },
-    infoText: {
-        color: '#0D47A1',
-        fontSize: 15,
-    },
     infoValue: {
         color: '#0D47A1',
         fontSize: 18,
@@ -177,7 +180,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginRight: 10,
     },
-    forecastTime: {
+    forecastDay: {
         color: '#0D47A1',
         fontSize: 16,
         marginBottom: 5,

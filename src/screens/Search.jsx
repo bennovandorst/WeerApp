@@ -7,24 +7,38 @@ const Search = () => {
     const [searchWeatherData, setSearchWeatherData] = useState(null);
     const [city, setCity] = useState('');
     const [showSearchBar, setShowSearchBar] = useState(true);
-    const [hourlyData, setHourlyData] = useState([]);
+    const [dailyData, setDailyData] = useState([]);
     const API_KEY = 'd4f3732fa26ca1a2748dddba22b9bc31';
 
     useEffect(() => {
         if (!city) return;
 
         const fetchSearchWeatherData = async () => {
-            const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=nl`);
-            const data = await response.json();
-            setSearchWeatherData(data);
+            try {
+                const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=nl`);
+                const data = await response.json();
+                setSearchWeatherData(data);
 
-            const forecastResponse = await fetch(
-                `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric&lang=nl`
-            );
-            const forecastData = await forecastResponse.json();
-            setHourlyData(forecastData.list.slice(0, 5)); 
+                const forecastResponse = await fetch(
+                    `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric&lang=nl`
+                );
+                const forecastData = await forecastResponse.json();
+                
+                const dailyForecast = [];
+                const forecastMap = {};
+                forecastData.list.forEach(item => {
+                    const date = new Date(item.dt * 1000).toLocaleDateString();
+                    if (!forecastMap[date]) {
+                        forecastMap[date] = item;
+                        dailyForecast.push(item);
+                    }
+                });
+                
+                setDailyData(dailyForecast.slice(0, 5));
+            } catch (error) {
+                console.error(error);
+            }
         };
-
         fetchSearchWeatherData();
     }, [city]);
 
@@ -62,7 +76,7 @@ const Search = () => {
             )}
             {searchWeatherData && (
                 <View>
-                    <SearchWeather searchWeatherData={searchWeatherData} hourlyData={hourlyData} />
+                    <SearchWeather searchWeatherData={searchWeatherData} dailyData={dailyData} />
                     <Pressable onPress={handleBackToSearch} style={styles.backButton}>
                         <Text style={styles.buttonText}>Terug naar zoeken</Text>
                     </Pressable>

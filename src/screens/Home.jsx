@@ -9,14 +9,14 @@ const Home = () => {
   const [searchWeatherData, setSearchWeatherData] = useState(null);
   const [locationData, setLocationData] = useState(null);
   const [city, setCity] = useState('');
-  const apiKey = 'd4f3732fa26ca1a2748dddba22b9bc31';
+  const API_KEY = 'd4f3732fa26ca1a2748dddba22b9bc31';
 
   useEffect(() => {
     GetLocation.getCurrentPosition({
         timeout: 60000,
     })
     .then(async location => {
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&appid=${apiKey}&units=metric&lang=nl`);
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&appid=${API_KEY}&units=metric&lang=nl`);
         const data = await response.json();
         setLocationData(data);
     })
@@ -30,7 +30,7 @@ const Home = () => {
     if (!city) return;
 
     const fetchSearchWeatherData = async () => {
-      const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&=lang=nl`);
+      const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&=lang=nl`);
       const data = await response.json();
       setSearchWeatherData(data);
     };
