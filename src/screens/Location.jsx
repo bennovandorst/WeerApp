@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const API_KEY = 'd4f3732fa26ca1a2748dddba22b9bc31';
 
-const Playground = () => {
+const Location = () => {
     const [weatherData, setWeatherData] = useState(null);
     const [dailyData, setDailyData] = useState([]);
 
@@ -122,7 +122,7 @@ const Playground = () => {
     );
 };
 
-export default Playground;
+export default Location;
 
 const styles = StyleSheet.create({
     container: {

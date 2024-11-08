@@ -1,8 +1,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Playground from './src/screens/Playground'; 
-import Home from './src/screens/Home';
+import Location from './src/screens/Location'; 
 import Search from './src/screens/Search';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Saved from './src/screens/Saved';
@@ -35,7 +34,7 @@ const App = () => {
                     },
                 })}
             >
-                <Tab.Screen name="Location" component={Playground} />
+                <Tab.Screen name="Location" component={Location} />
                 <Tab.Screen name="Search" component={Search} />
                 <Tab.Screen name="Saved" component={Saved} />
             </Tab.Navigator>
