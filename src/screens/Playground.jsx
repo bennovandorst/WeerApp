@@ -9,7 +9,6 @@ const Playground = () => {
     const [weatherData, setWeatherData] = useState(null);
     const [hourlyData, setHourlyData] = useState([]);
     
-    // Function to get weather data
     const fetchWeatherData = async (lat, lon) => {
         try {
             const response = await fetch(
@@ -18,7 +17,6 @@ const Playground = () => {
             const data = await response.json();
             setWeatherData(data);
 
-            // Fetch hourly forecast as well
             const forecastResponse = await fetch(
                 `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=nl`
             );
@@ -42,7 +40,6 @@ const Playground = () => {
             });
     }, []);
 
-    // Render hourly forecast items
     const renderHourlyForecast = () => {
         return (
             <FlatList
@@ -71,12 +68,10 @@ const Playground = () => {
             <View style={styles.container}>
                 {weatherData ? (
                     <>
-                        {/* Header with location */}
                         <Text style={styles.locationText}>
                             {weatherData.name}, {weatherData.sys.country}
                         </Text>
 
-                        {/* Main weather icon and temperature */}
                         <Image
                             source={{
                                 uri: `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@4x.png`,
@@ -90,7 +85,6 @@ const Playground = () => {
                             {weatherData.weather[0].description}
                         </Text>
 
-                        {/* Additional Info (wind, humidity, daylight) */}
                         <View style={styles.infoContainer}>
                             <View style={styles.infoItem}>
                                 <Icon name="weather-windy" size={25} color="#0D47A1" />
@@ -108,7 +102,6 @@ const Playground = () => {
                             </View>
                         </View>
 
-                        {/* Hourly Forecast */}
                         <View style={styles.forecastContainer}>{renderHourlyForecast()}</View>
                     </>
                 ) : (
@@ -119,8 +112,6 @@ const Playground = () => {
 };
 
 export default Playground;
-
-// StyleSheet for design
 
 const styles = StyleSheet.create({
     background: {

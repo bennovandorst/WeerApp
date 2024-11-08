@@ -7,15 +7,22 @@ const Search = () => {
     const [searchWeatherData, setSearchWeatherData] = useState(null);
     const [city, setCity] = useState('');
     const [showSearchBar, setShowSearchBar] = useState(true);
-    const apiKey = 'd4f3732fa26ca1a2748dddba22b9bc31';
+    const [hourlyData, setHourlyData] = useState([]);
+    const API_KEY = 'd4f3732fa26ca1a2748dddba22b9bc31';
 
     useEffect(() => {
         if (!city) return;
 
         const fetchSearchWeatherData = async () => {
-            const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=nl`);
+            const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=nl`);
             const data = await response.json();
             setSearchWeatherData(data);
+
+            const forecastResponse = await fetch(
+                `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric&lang=nl`
+            );
+            const forecastData = await forecastResponse.json();
+            setHourlyData(forecastData.list.slice(0, 5)); 
         };
 
         fetchSearchWeatherData();
@@ -30,11 +37,12 @@ const Search = () => {
         setShowSearchBar(false);
     };
 
-    /*const handleBackToSearch = () => {
+    const handleBackToSearch = () => {
         setShowSearchBar(true);
         setSearchWeatherData(null);
         setSearchInput('');
-    };*/
+        setCity('');
+    };
 
     return (
         <View style={styles.container}>
@@ -54,10 +62,10 @@ const Search = () => {
             )}
             {searchWeatherData && (
                 <View>
-                    <SearchWeather searchWeatherData={searchWeatherData} />
-                    {/*<Pressable onPress={handleBackToSearch} style={styles.backButton}>
+                    <SearchWeather searchWeatherData={searchWeatherData} hourlyData={hourlyData} />
+                    <Pressable onPress={handleBackToSearch} style={styles.backButton}>
                         <Text style={styles.buttonText}>Terug naar zoeken</Text>
-                    </Pressable>*/}
+                    </Pressable>
                 </View>
             )}
         </View>

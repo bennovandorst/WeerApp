@@ -48,13 +48,11 @@ const Home = () => {
 
   return (
     <View style={styles.container}>
-      {/** Gebruikers Locatie Weer container */}
       {locationData && (
         <View style={styles.weatherContainer}>
           <LocationWeather locationData={locationData} />
         </View>
       )}
-      {/** Zoekbalk */}
       <View style={styles.searchContainer}>
         <TextInput
           placeholder="Zoek een stad op"
@@ -67,7 +65,6 @@ const Home = () => {
           <Text style={styles.buttonText}>Zoeken</Text>
         </Pressable>
       </View>
-      {/** Zoekbalk Weer container */}
       {searchWeatherData && (
         <View style={styles.weatherContainer}>
           <SearchWeather searchWeatherData={searchWeatherData} />
