@@ -1,21 +1,46 @@
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Home from "./src/screens/Home";;
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Playground from './src/screens/Playground'; 
+import Home from './src/screens/Home';
+import Search from './src/screens/Search';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Saved from './src/screens/Saved';
 
-const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
-function App() {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen 
-          name="Home" 
-          component={Home} 
-          options={{headerShown: false}}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-}
+const App = () => {
+    return (
+        <NavigationContainer>
+            <Tab.Navigator
+                screenOptions={({ route }) => ({
+                    tabBarIcon: ({ color, size }) => {
+                        let iconName;
+
+                        if (route.name === 'Location') {
+                            iconName = 'navigation-variant';
+                        } else if (route.name === 'Saved') {
+                            iconName = 'playlist-star';
+                        } else if (route.name === 'Search') {
+                            iconName = 'magnify';
+                        }
+
+                        return <Icon name={iconName} size={size} color={color} />;
+                    },
+                    tabBarActiveTintColor: '#0D47A1',
+                    tabBarInactiveTintColor: 'gray',
+                    headerShown: false,
+                    tabBarStyle: {
+                        backgroundColor: '#E0F7FA',
+                    },
+                })}
+            >
+                <Tab.Screen name="Location" component={Playground} />
+                <Tab.Screen name="Search" component={Search} />
+                <Tab.Screen name="Saved" component={Saved} />
+            </Tab.Navigator>
+        </NavigationContainer>
+    );
+};
 
 export default App;

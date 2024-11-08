@@ -16,7 +16,7 @@ const Home = () => {
         timeout: 60000,
     })
     .then(async location => {
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&appid=${apiKey}&units=metric`);
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&appid=${apiKey}&units=metric&lang=nl`);
         const data = await response.json();
         setLocationData(data);
     })
@@ -33,7 +33,6 @@ const Home = () => {
       const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&=lang=nl`);
       const data = await response.json();
       setSearchWeatherData(data);
-      console.log(data);
     };
 
     fetchSearchWeatherData();
@@ -62,7 +61,7 @@ const Home = () => {
           value={searchInput}
           onChangeText={handleChange}
           style={styles.input}
-          placeholderTextColor="#000" // Ik haat software waarom moet het zo moeilijk zijn
+          placeholderTextColor="#0D47A1" // Ik haat software waarom moet het zo moeilijk zijn
         />
         <Pressable onPress={handleSearch} style={styles.button}>
           <Text style={styles.buttonText}>Zoeken</Text>
