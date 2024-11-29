@@ -9,22 +9,22 @@ const Location = () => {
     const [weatherData, setWeatherData] = useState(null);
     const [dailyData, setDailyData] = useState([]);
 
-    const fetchWeatherData = async (lat, lon) => {
+    const fetchWeatherData = async (latitude, longitude) => {
         try {
-            const response = await fetch(
-                `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=nl`
+            const weatherResponse = await fetch(
+                `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=nl`
             );
-            const data = await response.json();
-            setWeatherData(data);
+            const weather = await weatherResponse.json();
+            setWeatherData(weather);
 
             const forecastResponse = await fetch(
-                `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=nl`
+                `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=nl`
             );
-            const forecastData = await forecastResponse.json();
+            const forecast = await forecastResponse.json();
             
             const dailyForecast = [];
             const forecastMap = {};
-            forecastData.list.forEach(item => {
+            forecast.list.forEach(item => {
                 const date = new Date(item.dt * 1000).toLocaleDateString();
                 if (!forecastMap[date]) {
                     forecastMap[date] = item;
@@ -51,29 +51,25 @@ const Location = () => {
             });
     }, []);
 
-    const renderDailyForecast = () => {
-        return (
-            <FlatList
-                data={dailyData}
-                horizontal
-                keyExtractor={(item) => item.dt.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.forecastItem}>
-                        <Text style={styles.forecastDay}>
-                            {new Date(item.dt * 1000).toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit' })}
-                        </Text>
-                        <Image
-                            source={{
-                                uri: `https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png`,
-                            }}
-                            style={styles.forecastIcon}
-                        />
-                        <Text style={styles.forecastTemp}>{Math.round(item.main.temp)}°</Text>
-                    </View>
-                )}
-            />
-        );
-    };
+    const renderDailyForecast = () => (
+        <FlatList
+            data={dailyData}
+            horizontal
+            keyExtractor={(item) => item.dt.toString()}
+            renderItem={({ item }) => (
+                <View style={styles.forecastItem}>
+                    <Text style={styles.forecastDay}>
+                        {new Date(item.dt * 1000).toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit' })}
+                    </Text>
+                    <Image
+                        source={{ uri: `https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png` }}
+                        style={styles.forecastIcon}
+                    />
+                    <Text style={styles.forecastTemp}>{Math.round(item.main.temp)}°</Text>
+                </View>
+            )}
+        />
+    );
 
     return (
         <View style={styles.container}>
@@ -82,11 +78,8 @@ const Location = () => {
                     <Text style={styles.locationText}>
                         {weatherData.name}, {weatherData.sys.country}
                     </Text>
-
                     <Image
-                        source={{
-                            uri: `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@4x.png`,
-                        }}
+                        source={{ uri: `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@4x.png` }}
                         style={styles.weatherIcon}
                     />
                     <Text style={styles.temperatureText}>
@@ -95,7 +88,6 @@ const Location = () => {
                     <Text style={styles.weatherDescription}>
                         {weatherData.weather[0].description}
                     </Text>
-
                     <View style={styles.infoContainer}>
                         <View style={styles.infoItem}>
                             <Icon name="weather-windy" size={25} color="#0D47A1" />
@@ -112,7 +104,6 @@ const Location = () => {
                             </Text>
                         </View>
                     </View>
-
                     <View style={styles.forecastContainer}>{renderDailyForecast()}</View>
                 </>
             ) : (
