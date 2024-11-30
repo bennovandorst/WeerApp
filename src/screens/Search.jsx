@@ -84,10 +84,10 @@ const Search = () => {
             if (!cities.includes(city)) {
                 cities.push(city);
                 await AsyncStorage.setItem("savedCities", JSON.stringify(cities));
-                setSaveMessage("Stad succesvol opgeslagen!");
+                setSaveMessage("Stad is toegevoegd aan je lijst!");
                 setSavedCities(cities);
             } else {
-                setSaveMessage("Stad is al opgeslagen.");
+                setSaveMessage("Deze stad is al opgeslagen.");
             }
         } catch (error) {
             console.error(error);
