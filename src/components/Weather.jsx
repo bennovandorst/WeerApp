@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const SearchWeather = ({ searchWeatherData, dailyData }) => {
+const Weather = ({ weatherData, dailyData }) => {
 
   const renderHourlyForecast = () => {
     return (
@@ -29,36 +29,36 @@ const SearchWeather = ({ searchWeatherData, dailyData }) => {
 };
   return (
     <View style={styles.container}>
-        {searchWeatherData ? (
+        {weatherData ? (
             <>
                 <Text style={styles.locationText}>
-                    {searchWeatherData.name}, {searchWeatherData.sys.country}
+                    {weatherData.name}, {weatherData.sys.country}
                 </Text>
                 <Image
                     source={{
-                        uri: `https://openweathermap.org/img/wn/${searchWeatherData.weather[0].icon}@4x.png`,
+                        uri: `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@4x.png`,
                     }}
                     style={styles.weatherIcon}
                 />
                 <Text style={styles.temperatureText}>
-                    {Math.round(searchWeatherData.main.temp)}°C
+                    {Math.round(weatherData.main.temp)}°C
                 </Text>
                 <Text style={styles.weatherDescription}>
-                    {searchWeatherData.weather[0].description}
+                    {weatherData.weather[0].description}
                 </Text>
                 <View style={styles.infoContainer}>
                     <View style={styles.infoItem}>
                         <Icon name="weather-windy" size={25} color="#0D47A1" />
-                        <Text style={styles.infoValue}>{searchWeatherData.wind.speed} km/h</Text>
+                        <Text style={styles.infoValue}>{weatherData.wind.speed} km/h</Text>
                     </View>
                     <View style={styles.infoItem}>
                         <Icon name="water-percent" size={25} color="#0D47A1" />
-                        <Text style={styles.infoValue}>{searchWeatherData.main.humidity}%</Text>
+                        <Text style={styles.infoValue}>{weatherData.main.humidity}%</Text>
                     </View>
                     <View style={styles.infoItem}>
                         <Icon name="weather-sunset" size={25} color="#0D47A1" />
                         <Text style={styles.infoValue}>
-                            {new Date(searchWeatherData.sys.sunset * 1000).toLocaleTimeString()}
+                            {new Date(weatherData.sys.sunset * 1000).toLocaleTimeString()}
                         </Text>
                     </View>
                 </View>
@@ -72,12 +72,11 @@ const SearchWeather = ({ searchWeatherData, dailyData }) => {
 );
 };
 
-export default SearchWeather;
+export default Weather;
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#E0F7FA',
         padding: 20,
         justifyContent: 'center',
         alignItems: 'center',

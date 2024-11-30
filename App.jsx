@@ -27,7 +27,10 @@ const App = () => {
                     tabBarInactiveTintColor: 'gray',
                     headerShown: false,
                     tabBarStyle: {
-                        backgroundColor: '#E0F7FA',
+                        backgroundColor: 'transparent',
+                        borderTopWidth: 0,
+                        position: 'absolute',
+                        elevation: 0
                     },
                 })}
             >

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, FlatList } from 'react-native';
 import GetLocation from 'react-native-get-location';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Weather from '../components/Weather';
 
 const API_KEY = 'd4f3732fa26ca1a2748dddba22b9bc31';
 
@@ -51,6 +52,59 @@ const Location = () => {
             });
     }, []);
 
+    const getBackgroundColor = () => {
+        if (!weatherData) return '#E0F7FA';
+        const weatherMain = weatherData.weather[0].main.toLowerCase();
+        switch (weatherMain) {
+            case 'clear':
+                return '#FFD700';
+            case 'clouds':
+                return '#B0C4DE';
+            case 'rain':
+                return '#87CEEB';
+            case 'thunderstorm':
+                return '#778899';
+            case 'snow':
+                return '#FFFAFA';
+            default:
+                return '#E0F7FA';
+        }
+    };
+
+    useEffect(() => {
+        const loadWeatherData = async () => {
+            try {
+                const savedWeatherData = await AsyncStorage.getItem('weatherData');
+                const savedDailyData = await AsyncStorage.getItem('dailyData');
+                if (savedWeatherData && savedDailyData) {
+                    setWeatherData(JSON.parse(savedWeatherData));
+                    setDailyData(JSON.parse(savedDailyData));
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+    
+        loadWeatherData();
+    }, []);
+    
+    useEffect(() => {
+        const saveWeatherData = async () => {
+            try {
+                if (weatherData) {
+                    await AsyncStorage.setItem('weatherData', JSON.stringify(weatherData));
+                }
+                if (dailyData.length > 0) {
+                    await AsyncStorage.setItem('dailyData', JSON.stringify(dailyData));
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+    
+        saveWeatherData();
+    }, [weatherData, dailyData]);
+
     const renderDailyForecast = () => (
         <FlatList
             data={dailyData}
@@ -72,42 +126,11 @@ const Location = () => {
     );
 
     return (
-        <View style={styles.container}>
-            {weatherData ? (
-                <>
-                    <Text style={styles.locationText}>
-                        {weatherData.name}, {weatherData.sys.country}
-                    </Text>
-                    <Image
-                        source={{ uri: `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@4x.png` }}
-                        style={styles.weatherIcon}
-                    />
-                    <Text style={styles.temperatureText}>
-                        {Math.round(weatherData.main.temp)}°C
-                    </Text>
-                    <Text style={styles.weatherDescription}>
-                        {weatherData.weather[0].description}
-                    </Text>
-                    <View style={styles.infoContainer}>
-                        <View style={styles.infoItem}>
-                            <Icon name="weather-windy" size={25} color="#0D47A1" />
-                            <Text style={styles.infoValue}>{weatherData.wind.speed} km/h</Text>
-                        </View>
-                        <View style={styles.infoItem}>
-                            <Icon name="water-percent" size={25} color="#0D47A1" />
-                            <Text style={styles.infoValue}>{weatherData.main.humidity}%</Text>
-                        </View>
-                        <View style={styles.infoItem}>
-                            <Icon name="weather-sunset" size={25} color="#0D47A1" />
-                            <Text style={styles.infoValue}>
-                                {new Date(weatherData.sys.sunset * 1000).toLocaleTimeString()}
-                            </Text>
-                        </View>
-                    </View>
-                    <View style={styles.forecastContainer}>{renderDailyForecast()}</View>
-                </>
-            ) : (
-                <Text style={styles.loadingText}>Loading weather data...</Text>
+        <View style={[styles.container, { backgroundColor: getBackgroundColor() }]}>
+            {weatherData && (
+                <View>
+                    <Weather weatherData={weatherData} dailyData={dailyData} />
+                </View>
             )}
         </View>
     );
@@ -118,7 +141,6 @@ export default Location;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#E0F7FA',
         padding: 20,
         justifyContent: 'center',
         alignItems: 'center',

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import SearchWeather from '../components/SearchWeather';
+import Weather from '../components/Weather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Search = () => {
     const [searchInput, setSearchInput] = useState('');
-    const [searchWeatherData, setSearchWeatherData] = useState(null);
+    const [weatherData, setWeatherData] = useState(null);
     const [city, setCity] = useState('');
     const [showSearchBar, setShowSearchBar] = useState(true);
     const [dailyData, setDailyData] = useState([]);
@@ -28,11 +28,11 @@ const Search = () => {
     useEffect(() => {
         if (!city) return;
 
-        const fetchSearchWeatherData = async () => {
+        const fetchWeatherData = async () => {
             try {
                 const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=nl`);
                 const data = await response.json();
-                setSearchWeatherData(data);
+                setWeatherData(data);
 
                 const forecastResponse = await fetch(
                     `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric&lang=nl`
@@ -54,7 +54,7 @@ const Search = () => {
                 console.error(error);
             }
         };
-        fetchSearchWeatherData();
+        fetchWeatherData();
     }, [city]);
 
     const handleChange = (value) => {
@@ -68,7 +68,7 @@ const Search = () => {
 
     const handleBackToSearch = () => {
         setShowSearchBar(true);
-        setSearchWeatherData(null);
+        setWeatherData(null);
         setSearchInput('');
         setCity('');
         setSaveMessage('');
@@ -96,8 +96,40 @@ const Search = () => {
         setShowSearchBar(false);
     };
 
+    const getBackgroundColor = () => {
+        if (!weatherData) return '#E0F7FA';
+        const weatherMain = weatherData.weather[0].main.toLowerCase();
+        switch (weatherMain) {
+            case 'clear':
+                return '#FFD700';
+            case 'clouds':
+                return '#B0C4DE';
+            case 'rain':
+                return '#87CEEB';
+            case 'thunderstorm':
+                return '#778899';
+            case 'snow':
+                return '#FFFAFA';
+            default:
+                return '#E0F7FA';
+        }
+    };
+
+    useEffect(() => {
+        const saveWeatherData = async () => {
+            if (weatherData) {
+                try {
+                    await AsyncStorage.setItem('weatherData', JSON.stringify(weatherData));
+                } catch (error) {
+                    console.error('Error saving weather data:', error);
+                }
+            }
+        };
+        saveWeatherData();
+    }, [weatherData]);
+
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: getBackgroundColor() }]}>
             {showSearchBar && (
                 <View style={styles.searchContainer}>
                     <TextInput
@@ -107,7 +139,7 @@ const Search = () => {
                         style={styles.input}
                         placeholderTextColor="#0D47A1"
                     />
-                    <Pressable onPress={handleSearch} style={styles.searchButton}>
+                    <Pressable onPress={handleSearch} style={styles.searchButton} disabled={!searchInput.trim()}>
                         <Text style={styles.buttonText}>Zoeken</Text>
                     </Pressable>
                 </View>
@@ -135,9 +167,9 @@ const Search = () => {
                     </Pressable>
                 </View>
             )}
-            {searchWeatherData && (
+            {weatherData && (
                 <View>
-                    <SearchWeather searchWeatherData={searchWeatherData} dailyData={dailyData} />
+                    <Weather weatherData={weatherData} dailyData={dailyData} />
                     <Pressable onPress={handleBackToSearch} style={styles.button}>
                         <Text style={styles.buttonText}>Terug naar zoeken</Text>
                     </Pressable>
@@ -156,10 +188,10 @@ export default Search;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#E0F7FA',
         alignItems: 'center',
         justifyContent: 'center',
         padding: 20,
+        paddingBottom: 100
     },
     searchContainer: {
         backgroundColor: '#fff',
