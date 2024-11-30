@@ -4,72 +4,94 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Weather = ({ weatherData, dailyData }) => {
 
-  const renderHourlyForecast = () => {
+    const getBackgroundColor = () => {
+        if (!weatherData) return "#E0F7FA";
+        const weatherMain = weatherData.weather[0].main.toLowerCase();
+        switch (weatherMain) {
+            case "clear":
+                return "#FFD700";
+            case "clouds":
+                return "#B0C4DE";
+            case "rain":
+                return "#87CEEB";
+            case "thunderstorm":
+                return "#778899";
+            case "snow":
+                return "#FFFAFA";
+            default:
+                return "#E0F7FA";
+        }
+    };
+
+    const renderHourlyForecast = () => {
+        return (
+            <FlatList
+                data={dailyData}
+                horizontal
+                keyExtractor={(item) => item.dt.toString()}
+                renderItem={({ item }) => (
+                    <View style={styles.forecastItem}>
+                        <Text style={styles.forecastDay}>
+                            {new Date(item.dt * 1000).toLocaleDateString('nl-NL', {
+                                day: '2-digit',
+                                month: '2-digit',
+                            })}
+                        </Text>
+                        <Image
+                            source={{
+                                uri: `https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png`,
+                            }}
+                            style={styles.forecastIcon}
+                        />
+                        <Text style={styles.forecastTemp}>{Math.round(item.main.temp)}°</Text>
+                    </View>
+                )}
+            />
+        );
+    };
     return (
-        <FlatList
-            data={dailyData}
-            horizontal
-            keyExtractor={(item) => item.dt.toString()}
-            renderItem={({ item }) => (
-                <View style={styles.forecastItem}>
-                    <Text style={styles.forecastDay}>
-                        {new Date(item.dt * 1000).toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit' })}
+        <View style={[styles.container, { backgroundColor: getBackgroundColor() }]}>
+            {weatherData ? (
+                <>
+                    <Text style={styles.locationText}>
+                        {weatherData.name}, {weatherData.sys.country}
                     </Text>
                     <Image
                         source={{
-                            uri: `https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png`,
+                            uri: `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@4x.png`,
                         }}
-                        style={styles.forecastIcon}
+                        style={styles.weatherIcon}
                     />
-                    <Text style={styles.forecastTemp}>{Math.round(item.main.temp)}°</Text>
-                </View>
-            )}
-        />
-    );
-};
-  return (
-    <View style={styles.container}>
-        {weatherData ? (
-            <>
-                <Text style={styles.locationText}>
-                    {weatherData.name}, {weatherData.sys.country}
-                </Text>
-                <Image
-                    source={{
-                        uri: `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@4x.png`,
-                    }}
-                    style={styles.weatherIcon}
-                />
-                <Text style={styles.temperatureText}>
-                    {Math.round(weatherData.main.temp)}°C
-                </Text>
-                <Text style={styles.weatherDescription}>
-                    {weatherData.weather[0].description}
-                </Text>
-                <View style={styles.infoContainer}>
-                    <View style={styles.infoItem}>
-                        <Icon name="weather-windy" size={25} color="#0D47A1" />
-                        <Text style={styles.infoValue}>{weatherData.wind.speed} km/h</Text>
+                    <Text style={styles.temperatureText}>
+                        {Math.round(weatherData.main.temp)}°C
+                    </Text>
+                    <Text style={styles.weatherDescription}>
+                        {weatherData.weather[0].description}
+                    </Text>
+                    <View style={styles.infoContainer}>
+                        <View style={styles.infoItem}>
+                            <Icon name="weather-windy" size={25} color="#0D47A1" />
+                            <Text style={styles.infoValue}>{weatherData.wind.speed} km/h</Text>
+                        </View>
+                        <View style={styles.infoItem}>
+                            <Icon name="water-percent" size={25} color="#0D47A1" />
+                            <Text style={styles.infoValue}>{weatherData.main.humidity}%</Text>
+                        </View>
+                        <View style={styles.infoItem}>
+                            <Icon name="weather-sunset" size={25} color="#0D47A1" />
+                            <Text style={styles.infoValue}>
+                                {new Date(weatherData.sys.sunset * 1000).toLocaleTimeString()}
+                            </Text>
+                        </View>
                     </View>
-                    <View style={styles.infoItem}>
-                        <Icon name="water-percent" size={25} color="#0D47A1" />
-                        <Text style={styles.infoValue}>{weatherData.main.humidity}%</Text>
-                    </View>
-                    <View style={styles.infoItem}>
-                        <Icon name="weather-sunset" size={25} color="#0D47A1" />
-                        <Text style={styles.infoValue}>
-                            {new Date(weatherData.sys.sunset * 1000).toLocaleTimeString()}
-                        </Text>
-                    </View>
-                </View>
 
-                <View style={styles.forecastContainer}>{renderHourlyForecast()}</View>
-            </>
-        ) : (
-            <Text style={styles.loadingText}>Loading weather data...</Text>
-        )}
-    </View>
-);
+                    <View style={styles.forecastContainer}>{renderHourlyForecast()}</View>
+                </>
+            ) : (
+                <Text style={styles.loadingText}>Loading weather data...</Text>
+            )}
+        </View>
+    );
 };
 
 export default Weather;

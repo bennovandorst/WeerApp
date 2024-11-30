@@ -4,11 +4,10 @@ import GetLocation from 'react-native-get-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Weather from '../components/Weather';
 
-const API_KEY = 'd4f3732fa26ca1a2748dddba22b9bc31';
-
 const Location = () => {
     const [weatherData, setWeatherData] = useState(null);
     const [dailyData, setDailyData] = useState([]);
+    const API_KEY = 'd4f3732fa26ca1a2748dddba22b9bc31';
 
     const fetchWeatherData = async (latitude, longitude) => {
         try {
@@ -22,17 +21,17 @@ const Location = () => {
                 `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=nl`
             );
             const forecast = await forecastResponse.json();
-            
+
             const dailyForecast = [];
             const forecastMap = {};
-            forecast.list.forEach(item => {
+            forecast.list.forEach((item) => {
                 const date = new Date(item.dt * 1000).toLocaleDateString();
                 if (!forecastMap[date]) {
                     forecastMap[date] = item;
                     dailyForecast.push(item);
                 }
             });
-            
+
             setDailyData(dailyForecast.slice(0, 5));
         } catch (error) {
             console.error(error);
@@ -52,25 +51,6 @@ const Location = () => {
             });
     }, []);
 
-    const getBackgroundColor = () => {
-        if (!weatherData) return '#E0F7FA';
-        const weatherMain = weatherData.weather[0].main.toLowerCase();
-        switch (weatherMain) {
-            case 'clear':
-                return '#FFD700';
-            case 'clouds':
-                return '#B0C4DE';
-            case 'rain':
-                return '#87CEEB';
-            case 'thunderstorm':
-                return '#778899';
-            case 'snow':
-                return '#FFFAFA';
-            default:
-                return '#E0F7FA';
-        }
-    };
-
     useEffect(() => {
         const loadWeatherData = async () => {
             try {
@@ -84,10 +64,10 @@ const Location = () => {
                 console.error(error);
             }
         };
-    
+
         loadWeatherData();
     }, []);
-    
+
     useEffect(() => {
         const saveWeatherData = async () => {
             try {
@@ -101,32 +81,12 @@ const Location = () => {
                 console.error(error);
             }
         };
-    
+
         saveWeatherData();
     }, [weatherData, dailyData]);
 
-    const renderDailyForecast = () => (
-        <FlatList
-            data={dailyData}
-            horizontal
-            keyExtractor={(item) => item.dt.toString()}
-            renderItem={({ item }) => (
-                <View style={styles.forecastItem}>
-                    <Text style={styles.forecastDay}>
-                        {new Date(item.dt * 1000).toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit' })}
-                    </Text>
-                    <Image
-                        source={{ uri: `https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png` }}
-                        style={styles.forecastIcon}
-                    />
-                    <Text style={styles.forecastTemp}>{Math.round(item.main.temp)}°</Text>
-                </View>
-            )}
-        />
-    );
-
     return (
-        <View style={[styles.container, { backgroundColor: getBackgroundColor() }]}>
+        <View style={styles.container}>
             {weatherData && (
                 <View>
                     <Weather weatherData={weatherData} dailyData={dailyData} />
@@ -141,74 +101,7 @@ export default Location;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    locationText: {
-        fontSize: 24,
-        color: '#0D47A1',
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    weatherIcon: {
-        width: 150,
-        height: 150,
-        marginBottom: 10,
-    },
-    temperatureText: {
-        fontSize: 64,
-        color: '#0D47A1',
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    weatherDescription: {
-        fontSize: 20,
-        color: '#0D47A1',
-        textTransform: 'capitalize',
-        marginBottom: 20,
-    },
-    infoContainer: {
-        width: '100%',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 20,
-    },
-    infoItem: {
-        alignItems: 'center',
-    },
-    infoValue: {
-        color: '#0D47A1',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    forecastContainer: {
-        marginTop: 20,
-        width: '100%',
-    },
-    forecastItem: {
-        backgroundColor: '#fff',
-        padding: 10,
-        borderRadius: 10,
-        alignItems: 'center',
-        marginRight: 10,
-    },
-    forecastDay: {
-        color: '#0D47A1',
-        fontSize: 16,
-        marginBottom: 5,
-    },
-    forecastIcon: {
-        width: 50,
-        height: 50,
-    },
-    forecastTemp: {
-        color: '#0D47A1',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    loadingText: {
-        fontSize: 18,
-        color: '#0D47A1',
     },
 });
